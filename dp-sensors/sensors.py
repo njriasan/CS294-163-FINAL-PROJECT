@@ -82,20 +82,35 @@ def trigger_event(sensors, r):
             s.will_report_event()
 
 # Calculates the percentage of sensors that detected the event
-# that are within radius r of the origin.
-def calculate_percentage_success(sensors, r):
+# that are within radius r of location
+def calculate_percentage_success(sensors, r, location):
     total_within_r = 0.0
     success_within_r = 0.0
     for s in sensors:
-        if s.get_euclidean_distance_from(origin) <= r and s.triggered:
+        if s.get_euclidean_distance_from(location) <= r and s.triggered:
             total_within_r += 1.0
             if s.witnessed_event:
                 success_within_r += 1.0
     return success_within_r / total_within_r
 
 
-def calculate_centered_percentage_success(sensors, r):
-    pass
+def find_closest_sensor(sensors):
+    min_value = float("inf")
+    closest_sensor = None
+    for s in sensors:
+        dist = s.get_euclidean_distance_from(origin)
+        if dist < min_value:
+            min_value = dist
+            closest_sensor = s
+    assert(closest_sensor is not None)
+    return closest_sensor
+
+def calculate_origin_percentage_success(sensors, r):
+    return calculate_percentage_success(sensors, r, origin)
+
+def calculate_centered_percentage_success(sensors, r, closest_sensor):
+    closest_location = closest_sensor.location
+    return calculate_percentage_success(sensors, r, closest_location)
 
 def n_random_sensors_in_ring(n, r1, r2, fnr=1):
     pass
@@ -154,7 +169,7 @@ def test1():
     fnr = 0.05
     r = 5.0
     sensors = n_random_sensors_in_circle(100000, r, fnr)
-    for i in range(10):
+    for i in range(1):
         trigger_event(sensors, r)
         print (calculate_percentage_success(sensors, r))
         plot_sensor_results(sensors, r / 2, fnr)
