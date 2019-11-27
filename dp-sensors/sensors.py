@@ -112,8 +112,28 @@ def calculate_centered_percentage_success(sensors, r, closest_sensor):
     closest_location = closest_sensor.location
     return calculate_percentage_success(sensors, r, closest_location)
 
-def n_random_sensors_in_ring(n, r1, r2, fnr=1):
-    pass
+
+# Returns a list contain n sensors each within a random location
+# in a ring found by creating a circle of radius r1 and not allowing
+# any points at radius r2. Each sensor has failure rate fnr.
+def n_random_sensors_in_ring(n, r1, r2, fnr):
+    assert(isinstance(r1, float))
+    assert(isinstance(r2, float))
+    assert(r2 < r1)
+    sensors = []
+    i = 0
+    while i < n:
+        theta = 2 * np.random.rand() * np.pi
+        radius = r * np.sqrt(np.random.rand())
+        if radius > r2:
+            i += 1
+            # Convert to lat and long
+            lon = radius * np.cos(theta)
+            lat = radius * np.sin(theta)
+            loc = Location(lon, lat)
+            sensors.append(Sensor(loc, fnr))
+    return sensors
+    
 
 def calculate_percentage_success_dp(sensors, r):
     pass
