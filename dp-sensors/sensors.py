@@ -87,9 +87,9 @@ def calculate_percentage_success(sensors, r, location):
     total_within_r = 0.0
     success_within_r = 0.0
     for s in sensors:
-        if s.get_euclidean_distance_from(location) <= r and s.triggered:
+        if s.get_euclidean_distance_from(location) <= r:
             total_within_r += 1.0
-            if s.witnessed_event:
+            if s.triggered and s.witnessed_event:
                 success_within_r += 1.0
     return success_within_r / total_within_r
 
@@ -124,7 +124,7 @@ def n_random_sensors_in_ring(n, r1, r2, fnr):
     i = 0
     while i < n:
         theta = 2 * np.random.rand() * np.pi
-        radius = r * np.sqrt(np.random.rand())
+        radius = r1 * np.sqrt(np.random.rand())
         if radius > r2:
             i += 1
             # Convert to lat and long
@@ -138,7 +138,7 @@ def n_random_sensors_in_ring(n, r1, r2, fnr):
 def calculate_percentage_success_dp(sensors, r):
     pass
 
-def calculate_centered_percentage_success(sensors, r):
+def calculate_centered_percentage_success_dp(sensors, r):
     pass
 
 # Resets all sensors. This allows running multiple tests on the
@@ -187,12 +187,18 @@ def plot_sensor_results(sensors, r, fnr):
 
 def test1():
     fnr = 0.05
-    r = 5.0
-    sensors = n_random_sensors_in_circle(100000, r, fnr)
+    r2 = 5.0
+    r1 = 7.0
+    n = 100000
+    inner_sensors = n_random_sensors_in_circle(n, r2, fnr)
+    outer_ring = n_random_sensors_in_ring(n, r1, r2, fnr)
+    sensors = inner_sensors + outer_ring
     for i in range(1):
-        trigger_event(sensors, r)
-        print (calculate_percentage_success(sensors, r))
-        plot_sensor_results(sensors, r / 2, fnr)
+        trigger_event(sensors, r2)
+        print (calculate_origin_percentage_success(sensors, r2))
+        closest = find_closest_sensor(sensors)
+        print (calculate_centered_percentage_success(sensors, r2, closest))
+        plot_sensor_results(sensors, r2, fnr)
         reset_sensors(sensors)
 
 if __name__ == "__main__":
