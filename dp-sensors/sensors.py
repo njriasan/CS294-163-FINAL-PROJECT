@@ -8,7 +8,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy.stats import gamma
 
 class Location:
 
@@ -135,10 +135,35 @@ def n_random_sensors_in_ring(n, r1, r2, fnr):
     return sensors
     
 
-def calculate_percentage_success_dp(sensors, r):
+# Function to generate a random r value needed to achieve
+# geo-indistinguishability. Note that as the paper states r and
+# theta can be drawn separately, with r having pdf
+# D_{eps, r}(r) = eps^2 * r * exp(-eps * r)
+# We follow the method given in the paper which utilizes the 
+# CDF C_{eps}(r) = 1 - (1 + eps * r) * exp(-eps * r), samples
+# a value uniformly between 0 and 1 for the CDF to evaluate to
+# and inverts it to obtain r.
+def sample_r_geo_indistinguishable(eps):
+   z = np.random.rand()
+   # Note the pdf is gamma(r, 2, scale=1/eps), so we solve for the inverse
+   # of the CDF. This gives us
+   r = inverse_cdf = gamma.ppf(z, 2, scale=1/eps)
+   return r
+
+
+# Function to generate a random theta value needed to achieve
+# geo-indistinguishability. Note that as the paper states r and
+# theta can be drawn separately, with theta having pdf
+# D_{eps, theta}(theta) = 1/(2 * pi)
+def sample_theta_geo_indistinguishable(eps):
+    theta = 2 * np.random.rand() * np.pi
+    return theta
+
+
+def calculate_percentage_success_geo_indistinguishable(sensors, r):
     pass
 
-def calculate_centered_percentage_success_dp(sensors, r):
+def calculate_centered_percentage_success_geo_indistinguishable(sensors, r):
     pass
 
 # Resets all sensors. This allows running multiple tests on the
